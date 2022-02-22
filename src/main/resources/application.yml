@@ -1,0 +1,119 @@
+micronaut:
+  application:
+    name: cosmonaut_tasks
+    default-charset: UTF-8
+  server:
+    port: 8080
+    cors:
+      enabled: true
+  http:
+    client:
+      read-timeout: 20s
+  security:
+    enabled: true
+    endpoints:
+      login:
+        enabled: false
+      logout:
+        enabled: false
+      keys:
+        enabled: false
+      introspection:
+        enabled: false
+    authentication: bearer
+    token:
+      jwt:
+        generator:
+          access-token:
+            expiration: 3600
+          refresh-token:
+            enabled: false
+            secret: '"${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"'
+        signatures:
+          secret:
+            generator:
+              secret: '"${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"'
+    intercept-url-map:
+      - pattern: /swagger/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /asincrono
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /rapidoc/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /swagger-ui/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /redoc/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /health/liveness
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /health/readiness
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /**
+        http-method: OPTIONS
+        access:
+          - isAnonymous()
+      - pattern: /**
+        access:
+          - isAuthenticated()
+
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      rapidoc:
+        paths: classpath:META-INF/swagger/views/rapidoc
+        mapping: /rapidoc/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
+      redoc:
+        paths: classpath:META-INF/swagger/views/redoc
+        mapping: /redoc/**
+
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/cosmonaut
+    driverClassName: org.postgresql.Driver
+    username: cosmonaut
+    password: 'c0ns0l1d4MX_2021'
+    schema-generate: NONE
+    dialect: POSTGRES
+
+servicio:
+  csd:
+    host: "https://us-central1-cosmonaut-299500.cloudfunctions.net"
+    path: "/cosmonaut-csd"
+  imss:
+    host: "https://us-central1-cosmonaut-299500.cloudfunctions.net"
+    path: "/cosmonaut-imss?operacion="
+  orquestador:
+    host: "https://cosmonautdev.wintermute.services"
+    path: "/orquestador/nomina/getCalc"
+
+
+programador:
+  nomina:
+    cron:
+      inicial: "60s"
+      fijo: "30s"
+    hilos: "5"
+  tectel:
+    cron:
+      inicial: "60s"
+      fijo: "7200s"
+
